@@ -36,5 +36,12 @@
     (set! (.-className div) "rect")
     (.appendChild (.-body js/document) div)))
 
+(defn scatter-rects
+  []
+  (let [pile (rect-pile 500 100 100)]
+    (doseq [rect pile]
+      (rect-div! rect))))
+
 (connect/connect)
 
+(scatter-rects)
