@@ -1,0 +1,5 @@
+build graph of element neighborhoods
+quadtrees to progressively fill in space
+fill in holes
+insert/remove item into/from sorted layout
+arbitrary layout and sorting functions
