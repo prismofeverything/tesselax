@@ -7,8 +7,15 @@
 (defrecord Rect [x y width height color div])
 
 (defn rrange
-  [min max]
-  (+ min (rand-int (- max min))))
+  ([min max]
+     (+ min (rand-int (- max min))))
+  ([min max curve]
+     (let [min-output min
+           output-range (- max min)
+           curved-range ((.-log js/Math)(* output-range curve))
+           position (rand curved-range)
+           curved-position ((.-exp js/Math) position)]
+       (+ min-output position))))
 
 (defn rprop
   [min max prop]
@@ -93,13 +100,17 @@
                           :x next-x
                           :y 0)))))))
 
+(defn area
+  [{:keys [width height]}]
+  (* width height))
+
 (defn inside?
   "first argument is a rect
    second argument is a point represented by a two element vector"
   [{:keys [x y width height]} [a b]]
   (and
-   (<= x a (+ x width))
-   (<= y b (+ y height))))
+   (< x a (+ x width))
+   (< y b (+ y height))))
 
 (defn all-points
   [{:keys [x y width height]}]
@@ -110,9 +121,13 @@
      [x' y']
      [x y']]))
 
-(defn cruciform?
-  [a b]
-  false)
+(defn cruciform? [a b]
+  (letfn [(cross? [{x :x y :y w :width h :height}
+                   {x' :x y' :y w' :width h' :height}]
+            (and (<= x x' (+ x' w') (+ x w))
+                 (<= y' y (+ y h) (+ y' h'))))]
+    (or (cross? a b)
+        (cross? b a))))
 
 (defn overlap?
   [a b]
