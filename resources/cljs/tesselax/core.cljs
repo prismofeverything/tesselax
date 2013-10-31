@@ -7,8 +7,15 @@
 (defrecord Rect [x y width height color div])
 
 (defn rrange
-  [min max]
-  (+ min (rand-int (- max min))))
+  ([min max]
+     (+ min (rand-int (- max min))))
+  ([min max curve]
+     (let [min-output min
+           output-range (- max min)
+           curved-range (Math/log (* output-range curve))
+           position (rand curved-range)
+           curved-position (Math/exp position)]
+       (+ min-output position))))
 
 (defn rprop
   [min max prop]
