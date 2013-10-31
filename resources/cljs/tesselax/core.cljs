@@ -12,9 +12,9 @@
   ([min max curve]
      (let [min-output min
            output-range (- max min)
-           curved-range (Math/log (* output-range curve))
+           curved-range ((.-log js/Math)(* output-range curve))
            position (rand curved-range)
-           curved-position (Math/exp position)]
+           curved-position ((.-exp js/Math) position)]
        (+ min-output position))))
 
 (defn rprop
