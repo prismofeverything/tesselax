@@ -1,3 +1,4 @@
+add core.async and timeout for progressive animation of layout
 build graph of element neighborhoods
 quadtrees to progressively fill in space
 fill in holes
