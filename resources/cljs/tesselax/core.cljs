@@ -117,9 +117,13 @@
      [x' y']
      [x y']]))
 
-(defn cruciform?
-  [a b]
-  false)
+(defn cruciform? [a b]
+  (letfn [(cross? [{x :x y :y w :width h :height}
+                   {x' :x y' :y w' :width h' :height}]
+            (and (<= x x' (+ x' w') (+ x w))
+                 (<= y' y (+ y h) (+ y' h'))))]
+    (or (cross? a b)
+        (cross? b a))))
 
 (defn overlap?
   [a b]
@@ -166,14 +170,6 @@
         (if (some (partial overlap? rect) placed)
           (recur placed (conj rejects rect) (rest pile) max-x max-y)
           (recur (conj placed rect) rejects (rest pile) max-x max-y))))))
-
-(defn cruciform? [a b]
-  (letfn [(cross? [{x :x y :y w :width h :height}
-                   {x' :x y' :y w' :width h' :height}]
-            (and (<= x x' (+ x' w') (+ x w))
-                 (<= y' y (+ y h) (+ y' h'))))]
-    (or (cross? a b)
-        (cross? b a))))
 
 (connect/connect)
 
