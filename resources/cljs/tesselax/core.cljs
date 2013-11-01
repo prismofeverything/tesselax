@@ -10,12 +10,14 @@
   ([min max]
      (+ min (rand-int (- max min))))
   ([min max curve]
-     (let [min-output min
-           output-range (- max min)
-           curved-range ((.-log js/Math)(* output-range curve))
+     (let [min-output (double min)
+           output-range (double (- max min))
+           curved-range (.log js/Math (* output-range curve))
            position (rand curved-range)
-           curved-position ((.-exp js/Math) position)]
-       (+ min-output position))))
+           curved-position (.exp js/Math position)
+           result (+ min-output position)]
+       (.log js/console "rrange " min max curve " = " result)
+       result)))
 
 (defn rprop
   [min max prop]
@@ -93,10 +95,10 @@
     (if (empty? rest-of-pile)
       out-pile
       (let [next-rect (first rest-of-pile)]
-        (recur 
+        (recur
          (+ next-x (:width next-rect))
          (rest rest-of-pile)
-         (conj out-pile (assoc next-rect 
+         (conj out-pile (assoc next-rect
                           :x next-x
                           :y 0)))))))
 
@@ -121,20 +123,37 @@
      [x' y']
      [x y']]))
 
-(defn cruciform? [a b]
-  (letfn [(cross? [{x :x y :y w :width h :height}
-                   {x' :x y' :y w' :width h' :height}]
-            (and (<= x x' (+ x' w') (+ x w))
-                 (<= y' y (+ y h) (+ y' h'))))]
-    (or (cross? a b)
-        (cross? b a))))
+(defn cruciform?
+ [a b]
+ (letfn [(cross? [{x :x y :y w :width h :height}
+                  {x' :x y' :y w' :width h' :height}]
+           (and (<= x x' (+ x' w') (+ x w))
+                (<= y' y (+ y h) (+ y' h'))))]
+   (or (cross? a b)
+       (cross? b a))))
 
-(defn overlap?
+(defn old-overlap?
   [a b]
   (or
    (some (partial inside? b) (all-points a))
    (some (partial inside? a) (all-points b))
    (cruciform? a b)))
+
+(defn non-overlap
+  "Determines if two rectangles do not overlap."
+  [a b]
+  (flet [(above [{y :y h :height} {limit :y}]
+               (< (+ y h) limit))
+         (left [{x :x w :width} {limit :x}]
+                (< (+x w) limit))]
+        (or (above a b)
+            (above b a)
+            (left a b)
+            (left b a))))
+
+(def overlap?
+  "determines if two rectangles overlap"
+  (comp not non-overlap))
 
 (defn random-nonoverlap-layout
   [pile max-x max-y]
@@ -164,8 +183,10 @@
     (if (empty? pile)
       (if (empty? rejects)
         placed
-        (do 
-          (.log js/console "Expanding... ! rejects: " (count rejects) " --- max bounds:" max-x)
+        (do
+          (.log js/console
+                "Expanding... ! rejects: " (count rejects)
+                " --- max bounds:" max-x)
           (recur placed [] rejects (+ max-x 50) (+ max-y 50))))
       (let [rect (first pile)
             x (rand-int max-x)
