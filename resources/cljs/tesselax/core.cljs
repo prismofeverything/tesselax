@@ -139,17 +139,18 @@
    (some (partial inside? a) (all-points b))
    (cruciform? a b)))
 
+
 (defn non-overlap
   "Determines if two rectangles do not overlap."
   [a b]
-  (flet [(above [{y :y h :height} {limit :y}]
-               (< (+ y h) limit))
-         (left [{x :x w :width} {limit :x}]
-                (< (+x w) limit))]
-        (or (above a b)
-            (above b a)
-            (left a b)
-            (left b a))))
+  (letfn [(above [{y :y h :height} {limit :y}]
+            (< (+ y h) limit))
+          (left [{x :x w :width} {limit :x}]
+            (< (+ x w) limit))]
+    (or (above a b)
+        (above b a)
+        (left a b)
+        (left b a))))
 
 (def overlap?
   "determines if two rectangles overlap"
