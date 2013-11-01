@@ -139,14 +139,13 @@
    (some (partial inside? a) (all-points b))
    (cruciform? a b)))
 
-
 (defn non-overlap
   "Determines if two rectangles do not overlap."
   [a b]
   (letfn [(above [{y :y h :height} {limit :y}]
-            (< (+ y h) limit))
+            (<= (+ y h) limit))
           (left [{x :x w :width} {limit :x}]
-            (< (+ x w) limit))]
+            (<= (+ x w) limit))]
     (or (above a b)
         (above b a)
         (left a b)
@@ -200,4 +199,4 @@
 (connect/connect)
 
 (def pile (scatter-rects 500))
-(animate-pile! (less-random-nonoverlap-layout pile 500 500) 50)
+(animate-pile! (sort-by (fn [x] (rand)) (less-random-nonoverlap-layout pile 500 500)) 20)
