@@ -200,4 +200,8 @@
 (connect/connect)
 
 (def pile (scatter-rects 500))
-(animate-pile! (less-random-nonoverlap-layout pile 500 500) 50)
+
+(.log js/console
+      (with-out-str
+        (time
+         (animate-pile! (less-random-nonoverlap-layout pile 500 500) 50))))
