@@ -196,6 +196,21 @@
           (recur placed (conj rejects rect) (rest pile) max-x max-y)
           (recur (conj placed rect) rejects (rest pile) max-x max-y))))))
 
+(defn horizontal-limit-layout
+  [pile x-limit]
+  (loop [next-x 0
+         rest-of-pile pile
+         out-pile []]
+    (if (empty? rest-of-pile)
+      out-pile
+      (let [next-rect (first rest-of-pile)]
+        (recur
+         (+ next-x (:width next-rect))
+         (rest rest-of-pile)
+         (conj out-pile (assoc next-rect
+                          :x next-x
+                          :y 0)))))))
+
 (connect/connect)
 
 (def pile (scatter-rects 500))
