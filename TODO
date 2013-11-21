@@ -4,3 +4,9 @@ quadtrees to progressively fill in space
 fill in holes
 insert/remove item into/from sorted layout
 arbitrary layout and sorting functions
+
+
+POTENTIAL QUESTION -------------
+
+Where is the next space this rectangle can fit?
+How do we characterize the space that remains after a rectangle has been placed?
