@@ -46,7 +46,7 @@
 
 (defn fully-contains?
   [outer inner]
-  (and 
+  (and
    (<= (:x outer) (:x inner) (rect-right inner) (rect-right outer))
    (<= (:y outer) (:y inner) (rect-bottom inner) (rect-bottom outer))))
 
@@ -111,7 +111,7 @@
         new-spaces (list right-space bottom-space left-space top-space)]
     (remove null-space? new-spaces)))
 
-(defn print-rect 
+(defn print-rect
   [rect]
   (str (:x rect) "," (:y rect) "," (:width rect) "," (:height rect)))
 

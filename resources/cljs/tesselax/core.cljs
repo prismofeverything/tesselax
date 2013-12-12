@@ -233,5 +233,7 @@
 (def pile (scatter-rects 150))
 (let [[grid spaces] (horizontal-limit-layout pile 800)]
   (animate-pile! (sort-by (fn [x] (rand)) grid) 20 update-rect!)
-  (animate-pile! (mapv #(rect-div! % update-space!) (map #(update-in % [:height] (partial min 500)) spaces)) 20 update-space!))
-
+  (animate-pile!
+   (mapv #(rect-div! % update-space!)
+         (map #(update-in % [:height] (partial min 500)) spaces))
+   20 update-space!))
