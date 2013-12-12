@@ -1,6 +1,7 @@
 (ns tesselax.core
   (:require [cljs.core.async :refer [<! >! timeout chan close!]]
             [tesselax.connect :as connect]
+            [tesselax.space :as space]
             [domina :as dom])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
@@ -25,7 +26,7 @@
 
 (defn random-color
   []
-  [(rand-int 255) (rand-int 255) (rand-int 255)])
+  [(rand-int 200) (rand-int 200) (rand-int 200)])
 
 (defn random-rect
   ([min max] (random-rect min max 0))
@@ -35,7 +36,7 @@
 
 (defn rect-pile
   [number width height]
-  (let [min (Rect. 0 0 10 10)
+  (let [min (Rect. 0 0 1 1)
         max (Rect. 500 500 width height)]
     (map (partial random-rect min max) (range number))))
 
@@ -51,6 +52,21 @@
     (set! (.-backgroundColor style) (str "rgb(" r "," g "," b ")"))
     rect))
 
+(defn update-space!
+  [space]
+  (let [[r g b] (:color space)
+        div (:div space)
+        style (.-style div)]
+    (set! (.-top style) (str (dec (:y space)) "px"))
+    (set! (.-left style) (str (dec (:x space)) "px"))
+    (set! (.-width style) (str (:width space) "px"))
+    (set! (.-height style) (str (:height space) "px"))
+    (set! (.-borderStyle style) "solid")
+    (set! (.-borderWidth style) "1px")
+    (set! (.-borderColor style) (str "rgb(" r "," g "," b ")"))
+    (set! (.-backgroundColor style) (str "rgba(" r "," g "," b ",0.1)"))
+    space))
+
 (defn show-rect!
   [rect]
   (let [div (:div rect)
@@ -64,11 +80,12 @@
     (set! (.-opacity style) 0)))
 
 (defn rect-div!
-  [rect]
-  (let [div (.createElement js/document "div")]
-    (set! (.-className div) "rect")
-    (.appendChild (.-body js/document) div)
-    (update-rect! (assoc rect :div div))))
+  ([rect] (rect-div! rect update-rect!))
+  ([rect update]
+     (let [div (.createElement js/document "div")]
+       (set! (.-className div) "rect")
+       (.appendChild (.-body js/document) div)
+       (update (assoc rect :div div)))))
 
 (defn scatter-rects
   [n]
@@ -80,11 +97,11 @@
   (mapv update-rect! pile))
 
 (defn animate-pile!
-  [pile ms]
+  [pile ms update]
   (go
    (doseq [rect pile]
      (show-rect! rect)
-     (update-rect! rect)
+     (update rect)
      (<! (timeout ms)))))
 
 (defn horizontal-layout
@@ -139,14 +156,13 @@
    (some (partial inside? a) (all-points b))
    (cruciform? a b)))
 
-
 (defn non-overlap
   "Determines if two rectangles do not overlap."
   [a b]
   (letfn [(above [{y :y h :height} {limit :y}]
-            (< (+ y h) limit))
+            (<= (+ y h) limit))
           (left [{x :x w :width} {limit :x}]
-            (< (+ x w) limit))]
+            (<= (+ x w) limit))]
     (or (above a b)
         (above b a)
         (left a b)
@@ -197,11 +213,25 @@
           (recur placed (conj rejects rect) (rest pile) max-x max-y)
           (recur (conj placed rect) rejects (rest pile) max-x max-y))))))
 
+(defn horizontal-limit-layout
+  [pile x-limit]
+  (loop [pile pile
+         out-pile []
+         spaces [(Rect. 0 0 x-limit js/Infinity [0 0 0])]]
+    (if (empty? pile)
+      [out-pile spaces]
+      (let [next-rect (first pile)
+            [grid spaces] (space/add-rect out-pile next-rect spaces)]
+        (.log js/console (count spaces))
+        (recur
+         (rest pile)
+         grid
+         spaces)))))
+
 (connect/connect)
 
-(def pile (scatter-rects 500))
+(def pile (scatter-rects 150))
+(let [[grid spaces] (horizontal-limit-layout pile 800)]
+  (animate-pile! (sort-by (fn [x] (rand)) grid) 20 update-rect!)
+  (animate-pile! (mapv #(rect-div! % update-space!) (map #(update-in % [:height] (partial min 500)) spaces)) 20 update-space!))
 
-(.log js/console
-      (with-out-str
-        (time
-         (animate-pile! (less-random-nonoverlap-layout pile 500 500) 50))))
