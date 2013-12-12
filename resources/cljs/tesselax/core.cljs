@@ -2,10 +2,15 @@
   (:require [cljs.core.async :refer [<! >! timeout chan close!]]
             [tesselax.connect :as connect]
             [tesselax.space :as space]
-            [domina :as dom])
+            [domina :as dom]
+            [domina.css :as css]
+            [domina.events :as events])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (defrecord Rect [x y width height color div])
+
+(def grid (atom (list)))
+(def spaces (atom (list)))
 
 (defn rrange
   ([min max]
@@ -36,7 +41,7 @@
 
 (defn rect-pile
   [number width height]
-  (let [min (Rect. 0 0 1 1)
+  (let [min (Rect. 0 0 100 100)
         max (Rect. 500 500 width height)]
     (map (partial random-rect min max) (range number))))
 
@@ -50,6 +55,8 @@
     (set! (.-width style) (str (:width rect) "px"))
     (set! (.-height style) (str (:height rect) "px"))
     (set! (.-backgroundColor style) (str "rgb(" r "," g "," b ")"))
+    ;; (set! (.-backgroundImage style) (str "url(http://placekitten.com/" (:width rect) "/" (:height rect) ")"))
+    ;; (set! (.-backgroundImage style) (str "url(http://flickholdr.com/" (:width rect) "/" (:height rect) ")"))
     rect))
 
 (defn update-space!
@@ -57,6 +64,7 @@
   (let [[r g b] (:color space)
         div (:div space)
         style (.-style div)]
+    (set! (.-className div) "space")
     (set! (.-top style) (str (dec (:y space)) "px"))
     (set! (.-left style) (str (dec (:x space)) "px"))
     (set! (.-width style) (str (:width space) "px"))
@@ -89,7 +97,7 @@
 
 (defn scatter-rects
   [n]
-  (let [pile (rect-pile n 100 100)]
+  (let [pile (rect-pile n 400 400)]
     (mapv rect-div! pile)))
 
 (defn update-pile!
@@ -228,9 +236,37 @@
          grid
          spaces)))))
 
+(defn remove-spaces!
+  []
+  (dom/destroy! (dom/by-class "space")))
+
+(defn animate-grid!
+  [pile width]
+  (let [[pile spaces] (horizontal-limit-layout pile width)]
+    (remove-spaces!)
+    (animate-pile! pile 20 update-rect!)
+    ;; (animate-pile! (sort-by (fn [x] (rand)) pile) 20 update-rect!)
+    (animate-pile! (mapv #(rect-div! % update-space!) (map #(update-in % [:height] (partial min 500)) spaces)) 20 update-space!)
+    pile))
+
+(defn resize!
+  [event]
+  (.log js/console event)
+  (swap! grid #(animate-grid! % (.-innerWidth js/window))))
+
+(defn init!
+  []
+  (let [pile (scatter-rects 50)]
+    (reset! grid (animate-grid! pile (.-innerWidth js/window)))))
+
+(def on-load
+  (do
+    (set! (.-onload js/window) init!)
+    (set! (.-onresize js/window) resize!)))
+
 (connect/connect)
 
-(def pile (scatter-rects 150))
-(let [[grid spaces] (horizontal-limit-layout pile 800)]
-  (animate-pile! (sort-by (fn [x] (rand)) grid) 20 update-rect!)
-  (animate-pile! (mapv #(rect-div! % update-space!) (map #(update-in % [:height] (partial min 500)) spaces)) 20 update-space!))
+;; (def pile (reverse (sort-by area (scatter-rects 50))))
+;; (let [[grid spaces] (horizontal-limit-layout pile (.-innerWidth js/window))]
+;;   (animate-pile! (sort-by (fn [x] (rand)) grid) 20 update-rect!)
+;;   (animate-pile! (mapv #(rect-div! % update-space!) (map #(update-in % [:height] (partial min 500)) spaces)) 20 update-space!))

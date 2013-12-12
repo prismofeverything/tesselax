@@ -125,7 +125,10 @@
           grid (conj grid fit)
 
           {overlapping true non-overlapping false}
-          (group-by (partial overlap? fit) spaces)
+          (group-by 
+           (fn [rect] 
+             (overlap? fit rect)) 
+           spaces)
 
           partitioned-spaces (mapcat (partial partition-space fit) overlapping)
           collapsed-spaces (reduce

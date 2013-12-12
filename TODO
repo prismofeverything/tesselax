@@ -1,8 +1,12 @@
 add core.async and timeout for progressive animation of layout
+insert/remove item into/from sorted layout
+resize window, reflow grid
+add benchmarks
+analyze performance of layout algorithm
+
 build graph of element neighborhoods
 quadtrees to progressively fill in space
 fill in holes
-insert/remove item into/from sorted layout
 arbitrary layout and sorting functions
 
 
