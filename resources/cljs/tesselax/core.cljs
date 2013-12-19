@@ -1,16 +1,17 @@
 (ns tesselax.core
-  (:require [cljs.core.async :refer [<! >! timeout chan close!]]
+  (:require [cljs.core.async :refer [<! >! timeout chan close! put! alts! sliding-buffer]]
             [tesselax.connect :as connect]
             [tesselax.space :as space]
             [domina :as dom]
             [domina.css :as css]
             [domina.events :as events])
-  (:require-macros [cljs.core.async.macros :refer [go]]))
+  (:require-macros [cljs.core.async.macros :refer [go alt!]]))
 
 (defrecord Rect [x y width height color div])
 
 (def grid (atom (list)))
 (def spaces (atom (list)))
+(def resize-channel (chan (sliding-buffer 1)))
 
 (defn rrange
   ([min max]
@@ -249,14 +250,40 @@
     (animate-pile! (mapv #(rect-div! % update-space!) (map #(update-in % [:height] (partial min 500)) spaces)) 20 update-space!)
     pile))
 
-(defn resize!
+(defn resize-grid
   [event]
   (.log js/console event)
   (swap! grid #(animate-grid! % (.-innerWidth js/window))))
 
+(defn debouncer
+  [inflow interval]
+  (let [debounce (chan)]
+    (go
+     (loop [channels [inflow]
+            event nil]
+       (let [[value channel] (alts! channels)]
+         (if (= channel inflow)
+           (recur [inflow (timeout interval)] value)
+           (do
+             (put! debounce event)
+             (recur [inflow] nil))))))
+    debounce))
+
+(defn resize!
+  [event]
+  (put! resize-channel event))
+
+(defn reflow-on-resize
+  []
+  (let [debounced-resize (debouncer resize-channel 1000)]
+    (go
+     (while true
+       (resize-grid (<! debounced-resize))))))
+
 (defn init!
   []
   (let [pile (scatter-rects 50)]
+    (reflow-on-resize)
     (reset! grid (animate-grid! pile (.-innerWidth js/window)))))
 
 (def on-load

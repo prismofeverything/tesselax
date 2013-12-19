@@ -125,8 +125,8 @@
           grid (conj grid fit)
 
           {overlapping true non-overlapping false}
-          (group-by 
-           (fn [rect] 
+          (group-by
+           (fn [rect]
              (overlap? fit rect)) 
            spaces)
 
