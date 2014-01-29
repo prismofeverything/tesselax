@@ -35,13 +35,17 @@
            grid
            spaces))))))
 
+(defn layout-child!
+  [rect]
+  {:pre [(satisfies? Sized (:node rect))]}
+  (reposition! (:node rect) {:x (:x rect) :y (:y rect)}))
+
 (defn layout!
   [container opts]
   (let [pile (map rect (children container))
         layout (:layout opts)
-        [pile spaces] (layout pile container)]
-    (doseq [rect pile]
-      (reposition! (:node rect) {:x (:x rect) :y (:y rect)}))
+        [updated-pile spaces] (layout pile container)]
+    (doseq [rect updated-pile] (layout-child! rect))
     [pile spaces]))
 
 (defn init!
@@ -49,5 +53,7 @@
    whose children must implement Sized as well."
   ([container] (init! container {:layout horizontal-limit-layout}))
   ([container opts]
-     (setup! container opts)
-     (layout! container opts)))
+    {:pre [(satisfies? LayoutContainer container)
+           (satisfies? Sized container)]}
+    (setup! container opts)
+    (layout! container opts)))
