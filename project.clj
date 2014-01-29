@@ -21,16 +21,18 @@
          :auto-reload? false
          :servlet-name "tesselax-frontend"}
   :cljsbuild {
+    :crossovers [tesselax.shared]
+    :crossover-path "crossover-cljs"
     :builds {
       :dev {
-        :source-paths ["src"]  
+        :source-paths ["src" "crossover-cljs"]
         :compiler {
           :optimizations :none
           :output-to "resources/public/js/app/tesselax.js"
           :output-dir "resources/public/js/app/out"
           :source-map true}}
        :prod {
-        :source-paths ["src"]
+        :source-paths ["src" "crossover-cljs"]
         :compiler {
           :output-to "resources/public/js/tesselax.min.js"
           :optimizations :advanced

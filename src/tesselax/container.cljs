@@ -2,7 +2,7 @@
   (:require [cljs.core.async :refer [<! >! timeout chan close! put! alts! sliding-buffer]]
             [domina :as dom]
             [domina.css :as css]
-            [tesselax.layout :as layout])
+            [tesselax.shared.layout :as layout])
   (:require-macros [cljs.core.async.macros :refer [go alt!]]))
 
 (def resize-channel (chan (sliding-buffer 1)))

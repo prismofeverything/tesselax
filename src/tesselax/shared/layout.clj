@@ -1,8 +1,7 @@
-(ns tesselax.layout  
-  (:require [tesselax.space :as space]))
+(ns tesselax.shared.layout  
+  (:require [tesselax.shared.space :as space]))
 
 (def infinity (/ 1.0 0.0))
-(enable-console-print!)
 
 (defprotocol Sized
   (size [this])

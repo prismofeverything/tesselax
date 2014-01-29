@@ -1,5 +1,5 @@
 (ns tesselax.example
-  (:require [tesselax.layout :as layout] 
+  (:require [tesselax.shared.layout :as layout] 
             [tesselax.container :as container]))
 
 (defn rrange

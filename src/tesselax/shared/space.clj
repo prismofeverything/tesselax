@@ -1,4 +1,4 @@
-(ns tesselax.space)
+(ns tesselax.shared.space)
 
 (defrecord Rect [x y width height])
 
