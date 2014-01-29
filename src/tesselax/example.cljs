@@ -39,7 +39,6 @@
     (set! (.-width style) (str (:width rect) "px"))
     (set! (.-height style) (str (:height rect) "px"))
     (set! (.-backgroundColor style) (str "rgb(" r "," g "," b ")"))
-    ;; (set! (.-backgroundImage style) (str "url(http://placekitten.com/" (:width rect) "/" (:height rect) ")"))
     rect))
 
 (defn rect-div!

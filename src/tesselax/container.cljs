@@ -86,7 +86,7 @@
     (reflow-on-resize! this opts))
 
   (children [this]
-    (dom/nodes (dom/children (css/sel selector)))))
+    (map #(GoogleNode. %) (dom/nodes (dom/children (css/sel selector))))))
 
 (defn init-google-layout
   ([selector] 

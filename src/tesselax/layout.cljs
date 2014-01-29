@@ -2,6 +2,7 @@
   (:require [tesselax.space :as space]))
 
 (def infinity (/ 1.0 0.0))
+(enable-console-print!)
 
 (defprotocol Sized
   (size [this])
@@ -39,8 +40,8 @@
   (let [pile (map rect (children container))
         layout (:layout opts)
         [pile spaces] (layout pile container)]
-    (doseq [node (map :node pile)]
-      (reposition! container node))
+    (doseq [rect pile]
+      (reposition! (:node rect) {:x (:x rect) :y (:y rect)}))
     [pile spaces]))
 
 (defn init!
