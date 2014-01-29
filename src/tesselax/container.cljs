@@ -5,6 +5,8 @@
             [tesselax.shared.layout :as layout])
   (:require-macros [cljs.core.async.macros :refer [go alt!]]))
 
+(enable-console-print!)
+
 (def resize-channel (chan (sliding-buffer 1)))
 
 (defn debouncer
