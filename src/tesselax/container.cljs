@@ -84,15 +84,21 @@
 
   layout/LayoutContainer
   (setup! [this opts]
-    (append-resize! (partial put! resize-channel))
-    (reflow-on-resize! this opts))
+    (if-let [setup (:setup opts)]
+      (setup this opts)))
 
   (children [this]
     (map #(GoogleNode. %) (dom/nodes (dom/children (css/sel selector))))))
 
+(defn layout-on-resize
+  [container opts]
+  (append-resize! (partial put! resize-channel))
+  (reflow-on-resize! container opts))
+
 (defn init-google-layout
   ([selector] 
-     (layout/init! (GoogleContainer. selector)))
+     (init-google-layout selector {}))
   ([selector opts]
      (let [google (GoogleContainer. selector)]
        (layout/init! google opts))))
+

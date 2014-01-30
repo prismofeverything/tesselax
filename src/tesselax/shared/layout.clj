@@ -42,7 +42,7 @@
 (defn layout!
   [container opts]
   (let [pile (map rect (children container))
-        layout (:layout opts)
+        layout (or (:layout opts) horizontal-limit-layout)
         [updated-pile spaces] (layout pile container)]
     (doseq [rect updated-pile] (layout-child! rect))
     [pile spaces]))
@@ -50,7 +50,7 @@
 (defn init!
   "container must implement Sized and LayoutContainer,
    whose children must implement Sized as well."
-  ([container] (init! container {:layout horizontal-limit-layout}))
+  ([container] (init! container {}))
   ([container opts]
     {:pre [(satisfies? LayoutContainer container)
            (satisfies? Sized container)]}

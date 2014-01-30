@@ -1,6 +1,7 @@
 (ns tesselax.example
   (:require [tesselax.shared.layout :as layout] 
-            [tesselax.container :as container]))
+            [tesselax.container :as container]
+            [tesselax.effects :as effects]))
 
 (defn rrange
   ([min max]
@@ -47,7 +48,7 @@
      (let [div (.createElement js/document "div")
            style (.-style div)
            [r g b] (:node rect)]
-       (set! (.-className div) "rect")
+       (set! (.-className div) "rect animate-position")
        (set! (.-width style) (str (:width rect) "px"))
        (set! (.-height style) (str (:height rect) "px"))
        (set! (.-backgroundColor style) (str "rgb(" r "," g "," b ")"))
@@ -68,7 +69,8 @@
 (defn init!
   []
   (let [pile (scatter-rects 50)]
-    (container/init-google-layout "body")))
+    (effects/make-listener)
+    (container/init-google-layout "body" {:setup container/layout-on-resize})))
 
 (def on-load
   (set! (.-onload js/window) init!))

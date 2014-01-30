@@ -2,8 +2,13 @@
   <head>
     <style>
       .rect {
-        transition: all 1s ease-in-out;
         position: absolute;
+      }
+      .animate-position {
+        transition: top 1s ease-in-out, left 1s ease-in-out;
+      }
+      .front {
+        z-index: 1000;
       }
       .space {
         transition: all 1s ease-in-out;
