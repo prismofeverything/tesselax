@@ -11,7 +11,8 @@
 
 (defprotocol LayoutContainer
   (setup! [this opts])
-  (children [this]))
+  (fixed [this])
+  (flowing [this]))
 
 (defrecord Rect [x y width height node])
 
@@ -20,19 +21,23 @@
   (map->Rect (merge {:node sized} (size sized) (position sized))))
 
 (defn horizontal-limit-layout
-  [pile container]
-  (let [x-limit (:width (size container))]
-    (loop [pile pile
-           out-pile []
-           spaces [(Rect. 0 0 x-limit infinity nil)]]
-      (if (empty? pile)
-        [out-pile spaces]
-        (let [next-rect (first pile)
-              [grid spaces] (space/add-rect out-pile next-rect spaces)]
-          (recur
-           (rest pile)
-           grid
-           spaces))))))
+  ([pile container] (horizontal-limit-layout [] pile container))
+  ([fixed pile container] 
+     (let [x-limit (:width (size container))
+           [grid spaces] 
+           (reduce
+            (fn [[grid spaces] rect]
+              (space/add-rect grid rect spaces))
+            [[] [(Rect. 0 0 x-limit infinity nil)]] fixed)]
+       (loop [pile pile
+              out-pile grid
+              spaces spaces]
+         (if (empty? pile)
+           [out-pile spaces]
+           (let [next-rect (first pile)
+                 fit-rect (space/next-open-position next-rect spaces)
+                 [grid spaces] (space/add-rect out-pile fit-rect spaces)]
+             (recur (rest pile) grid spaces)))))))
 
 (defn layout-child!
   [rect]
@@ -41,9 +46,10 @@
 
 (defn layout!
   [container opts]
-  (let [pile (map rect (children container))
+  (let [fixed (map rect (fixed container))
+        pile (map rect (flowing container))
         layout (or (:layout opts) horizontal-limit-layout)
-        [updated-pile spaces] (layout pile container)]
+        [updated-pile spaces] (layout fixed pile container)]
     (doseq [rect updated-pile] (layout-child! rect))
     [pile spaces]))
 

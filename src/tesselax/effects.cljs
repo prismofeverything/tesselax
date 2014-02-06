@@ -29,7 +29,7 @@
   [(- a c) (- b d)])
 
 (defn make-listener
-  []
+  [layout!]
   (event-chan mouse-events :down js/document :mousedown {})
   (event-chan mouse-events :up js/document :mouseup {})
   (event-chan mouse-events :move js/document :mousemove {})
@@ -64,6 +64,9 @@
             (let [target (:target state)]
               (dom/remove-class! target "front")
               (dom/add-class! target "animate-position")
+              (dom/add-class! target "fixed")
+              (layout!)
+              (dom/remove-class! target "fixed")
               {:state :ready}))
           
           state))))))

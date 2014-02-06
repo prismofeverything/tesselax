@@ -14,17 +14,21 @@
    (< x a (+ x width))
    (< y b (+ y height))))
 
+(defn above 
+  [{y :y h :height} {limit :y}]
+  (<= (+ y h) limit))
+
+(defn left 
+  [{x :x w :width} {limit :x}]
+  (<= (+ x w) limit))
+
 (defn non-overlap
   "Determines if two rectangles do not overlap."
   [a b]
-  (letfn [(above [{y :y h :height} {limit :y}]
-            (<= (+ y h) limit))
-          (left [{x :x w :width} {limit :x}]
-            (<= (+ x w) limit))]
-    (or (above a b)
-        (above b a)
-        (left a b)
-        (left b a))))
+  (or (above a b)
+      (above b a)
+      (left a b)
+      (left b a)))
 
 (def overlap?
   "determines if two rectangles overlap"
@@ -45,10 +49,11 @@
   (+ (:y rect) (:height rect)))
 
 (defn fully-contains?
-  [outer inner]
+  [{:x ox :y oy :width ow :height oh} 
+   {:x ix :y iy :width iw :height ih}]
   (and 
-   (<= (:x outer) (:x inner) (rect-right inner) (rect-right outer))
-   (<= (:y outer) (:y inner) (rect-bottom inner) (rect-bottom outer))))
+   (<= ox ix (+ ix iw) (+ ox ow))
+   (<= oy iy (+ iy ih) (+ oy oh))))
 
 (defn space-ordering
   [a b]
@@ -115,31 +120,33 @@
   [rect]
   (str (:x rect) "," (:y rect) "," (:width rect) "," (:height rect)))
 
+(defn next-open-position
+  [rect spaces]
+  (if-let [space (first (filter #(fits-inside? rect %) spaces))]
+    (merge rect (select-keys space [:x :y]))))
+
 (defn add-rect
   "grid - all rects already placed
    rect - rect we want to fit into the grid
    spaces - a list of all spaces remaining"
-  [grid rect spaces]
-  (if-let [space (first (filter (partial fits-inside? rect) spaces))]
-    (let [fit (merge rect (select-keys space [:x :y]))
-          grid (conj grid fit)
+  [grid fit spaces]
+  (let [grid (conj grid fit)
 
-          {overlapping true non-overlapping false}
-          (group-by
-           (fn [rect]
-             (overlap? fit rect)) 
-           spaces)
+        {overlapping true non-overlapping false}
+        (group-by
+         (fn [rect]
+           (overlap? fit rect))
+         spaces)
 
-          partitioned-spaces (mapcat (partial partition-space fit) overlapping)
-          collapsed-spaces (reduce
-                            (fn [keepers part]
-                              (if (first
-                                   (filter
-                                    #(fully-contains? % part)
-                                    keepers))
-                                keepers (conj keepers part)))
-                            (list) (concat non-overlapping partitioned-spaces))
-
-          spaces-in-order (sort space-ordering collapsed-spaces)]
-      [grid spaces-in-order])
-    [grid spaces]))
+        partitioned-spaces (mapcat #(partition-space fit %) overlapping)
+        collapsed-spaces (reduce
+                          (fn [keepers part]
+                            (if (first
+                                 (filter
+                                  #(fully-contains? % part)
+                                  keepers))
+                              keepers
+                              (conj keepers part)))
+                          (list) (concat non-overlapping partitioned-spaces))
+        spaces-in-order (sort space-ordering collapsed-spaces)]
+    [grid spaces-in-order]))

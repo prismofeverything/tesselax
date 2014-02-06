@@ -87,8 +87,21 @@
     (if-let [setup (:setup opts)]
       (setup this opts)))
 
-  (children [this]
-    (map #(GoogleNode. %) (dom/nodes (dom/children (css/sel selector))))))
+  (fixed [this]
+    (map 
+     #(GoogleNode. %) 
+     (dom/nodes 
+      (filter 
+       #(dom/has-class? % "fixed") 
+       (dom/children (css/sel selector))))))
+
+  (flowing [this]
+    (map 
+     #(GoogleNode. %) 
+     (dom/nodes 
+      (remove
+       #(dom/has-class? % "fixed") 
+       (dom/children (css/sel selector)))))))
 
 (defn layout-on-resize
   [container opts]
@@ -100,5 +113,6 @@
      (init-google-layout selector {}))
   ([selector opts]
      (let [google (GoogleContainer. selector)]
-       (layout/init! google opts))))
+       (layout/init! google opts)
+       google)))
 

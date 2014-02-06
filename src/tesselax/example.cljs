@@ -52,6 +52,7 @@
        (set! (.-width style) (str (:width rect) "px"))
        (set! (.-height style) (str (:height rect) "px"))
        (set! (.-backgroundColor style) (str "rgb(" r "," g "," b ")"))
+;;       (set! (.-backgroundImage style) (str "url(http://hhhhold.com/" (:width rect) "x" (:height rect) ")"))
        (.appendChild (.-body js/document) div)
        (update (assoc rect :div div)))))
 
@@ -68,9 +69,10 @@
 
 (defn init!
   []
-  (let [pile (scatter-rects 50)]
-    (effects/make-listener)
-    (container/init-google-layout "body" {:setup container/layout-on-resize})))
+  (let [pile (scatter-rects 150)
+        opts {:setup container/layout-on-resize}
+        container (container/init-google-layout "body" opts)]
+    (effects/make-listener #(layout/layout! container opts))))
 
 (def on-load
   (set! (.-onload js/window) init!))
