@@ -130,7 +130,6 @@
    rect - rect we want to fit into the grid
    spaces - a list of all spaces remaining"
   [grid fit spaces]
-  (.log js/console "WTFF")
   (let [grid (conj grid fit)
 
         {overlapping true non-overlapping false}
