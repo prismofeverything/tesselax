@@ -1,5 +1,5 @@
 (ns tesselax.example
-  (:require [tesselax.shared.layout :as layout] 
+  (:require [tesselax.layout :as layout] 
             [tesselax.container :as container]
             [tesselax.effects :as effects]))
 

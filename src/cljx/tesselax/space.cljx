@@ -1,4 +1,4 @@
-(ns tesselax.shared.space)
+(ns tesselax.space)
 
 (defrecord Rect [x y width height])
 
@@ -130,7 +130,7 @@
    rect - rect we want to fit into the grid
    spaces - a list of all spaces remaining"
   [grid fit spaces]
-  (.log js/console "WTF")
+  (.log js/console "WTFF")
   (let [grid (conj grid fit)
 
         {overlapping true non-overlapping false}
@@ -149,6 +149,5 @@
                               keepers
                               (conj keepers part)))
                           (list) (concat non-overlapping partitioned-spaces))
-        _ (/ 1 0)
         spaces-in-order (sort space-ordering collapsed-spaces)]
     [grid spaces-in-order]))

@@ -8,7 +8,8 @@
                  [org.clojure/google-closure-library-third-party "0.0-2029"]]
   :dev-dependencies [[ring "1.2.0"]]
   :plugins [[lein-ring "0.8.6"]
-            [lein-cljsbuild "1.0.1"]]
+            [lein-cljsbuild "1.0.2"]
+            [com.keminglabs/cljx "0.3.2"]]
   :jvm-opts ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n" "-Xmx2g"]
   :source-paths ["src"]
   :resource-paths ["resources/"]
@@ -20,20 +21,26 @@
          :port 12321
          :auto-reload? false
          :servlet-name "tesselax-frontend"}
+  :cljx 
+  {:builds
+   [{:source-paths ["src/cljx"]
+     :output-path "target/generated/clj"
+     :rules :clj}
+    {:source-paths ["src/cljx"]
+     :output-path "target/generated/cljs"
+     :rules :cljs}]}
   :cljsbuild {
-;;    :crossovers [tesselax.shared]
-;;    :crossover-path "crossover-cljs"
     :builds {
       :dev {
-        :source-paths ["src" "crossover-cljs"]
+        :source-paths ["src/cljs" "target/generated/cljs"]
         :compiler {
           :optimizations :none
           :output-to "resources/public/js/app/tesselax.js"
           :output-dir "resources/public/js/app/out"
-          :source-map false ;; true 
+          :source-map true 
           }}
-       :prod {
-        :source-paths ["src" "crossover-cljs"]
+      :prod {
+        :source-paths ["src/cljs" "target/generated/cljs"]
         :compiler {
           :output-to "resources/public/js/tesselax.min.js"
           :optimizations :advanced
