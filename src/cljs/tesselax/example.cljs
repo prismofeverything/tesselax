@@ -69,7 +69,7 @@
 
 (defn init!
   []
-  (let [pile (scatter-rects 100)
+  (let [pile (scatter-rects 150)
         opts {:setup container/layout-on-resize}
         container (container/init-google-layout "body" opts)]
     (effects/make-listener #(layout/layout! container opts))))

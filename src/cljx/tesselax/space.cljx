@@ -49,11 +49,18 @@
   (+ (:y rect) (:height rect)))
 
 (defn fully-contains?
-  [{ox :x oy :y ow :width oh :height} 
+  [{ox :x oy :y ow :width oh :height}
    {ix :x iy :y iw :width ih :height}]
-  (and 
+  (and
    (<= ox ix (+ ix iw) (+ ox ow))
    (<= oy iy (+ iy ih) (+ oy oh))))
+
+(defn fully-contained?
+  [{ox :x oy :y ow :width oh :height}
+   {ix :x iy :y iw :width ih :height}]
+  (and
+   (< ox ix (+ ix iw) (+ ox ow))
+   (< oy iy (+ iy ih) (+ oy oh))))
 
 (defn space-ordering
   [a b]
@@ -122,14 +129,15 @@
 
 (defn next-open-position
   [rect spaces]
-  (if-let [space (first (filter #(fits-inside? rect %) spaces))]
+  (if-let [space (first (sort space-ordering (filter #(fits-inside? rect %) spaces)))]
     (merge rect (select-keys space [:x :y]))))
 
 (defn add-rect
   "grid - all rects already placed
-   rect - rect we want to fit into the grid
+   fit - rect we want to fit into the grid
    spaces - a list of all spaces remaining"
   [grid fit spaces]
+  ;; (.log js/console (count spaces))
   (let [grid (conj grid fit)
 
         {overlapping true non-overlapping false}
@@ -139,14 +147,17 @@
          spaces)
 
         partitioned-spaces (mapcat #(partition-space fit %) overlapping)
+
         collapsed-spaces (reduce
                           (fn [keepers part]
                             (if (first
                                  (filter
                                   #(fully-contains? % part)
                                   keepers))
-                              keepers
+                              (remove
+                               #(fully-contained? part %)
+                               keepers)
                               (conj keepers part)))
-                          (list) (concat non-overlapping partitioned-spaces))
-        spaces-in-order (sort space-ordering collapsed-spaces)]
-    [grid spaces-in-order]))
+                          non-overlapping
+                          partitioned-spaces)]
+    [grid collapsed-spaces]))
