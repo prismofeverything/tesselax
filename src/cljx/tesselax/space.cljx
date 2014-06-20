@@ -123,7 +123,7 @@
         new-spaces (list right-space bottom-space left-space top-space)]
     (remove null-space? new-spaces)))
 
-(defn print-rect 
+(defn print-rect
   [rect]
   (str (:x rect) "," (:y rect) "," (:width rect) "," (:height rect)))
 
