@@ -10,3 +10,5 @@ pom.xml.asc
 /resources/public/js/app
 /repl
 /out
+.DS_Store
+/crossover-cljs

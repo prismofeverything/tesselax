@@ -1,4 +1,4 @@
-(ns tesselax.core
+(ns tesselax.server
   (:require [clojure.java.io :as io]
             [ring.middleware.resource :as resource]))
 

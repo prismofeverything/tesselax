@@ -2,14 +2,23 @@
   <head>
     <style>
       .rect {
-        transition: all 1s ease-in-out;
-        opacity: 0;
         position: absolute;
-        background-color: red;
+      }
+      .animate-position {
+        transition: top 1s ease-in-out, left 1s ease-in-out;
+      }
+      .front {
+        z-index: 1000;
+      }
+      .space {
+        transition: all 1s ease-in-out;
+        position: absolute;
       }
     </style>
+    <script src="js/app/out/goog/base.js"></script>
+    <script src="js/app/tesselax.js"></script>
+    <script>goog.require("tesselax.example");</script>
   </head>
   <body>
-    <script src="/js/app/tesselax.js"></script>
   </body>
 </html>
