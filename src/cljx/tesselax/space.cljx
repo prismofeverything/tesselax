@@ -49,10 +49,11 @@
   (+ (:y rect) (:height rect)))
 
 (defn fully-contains?
-  [outer inner]
+  [{ox :x oy :y ow :width oh :height}
+   {ix :x iy :y iw :width ih :height}]
   (and
-   (<= (:x outer) (:x inner) (rect-right inner) (rect-right outer))
-   (<= (:y outer) (:y inner) (rect-bottom inner) (rect-bottom outer))))
+   (<= ox ix (+ ix iw) (+ ox ow))
+   (<= oy iy (+ iy ih) (+ oy oh))))
 
 (defn fully-contained?
   [{ox :x oy :y ow :width oh :height}
@@ -60,7 +61,6 @@
   (and
    (< ox ix (+ ix iw) (+ ox ow))
    (< oy iy (+ iy ih) (+ oy oh))))
-
 
 (defn space-ordering
   [a b]
